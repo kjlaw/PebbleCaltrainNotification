@@ -1,0 +1,19 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "kristenlaw21@gmail.com",
+    "longName": "PebbleNotification",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "shortName": "PebbleNotification",
+    "uuid": "3dae475a-3873-4a8a-a3f8-c27571a422ea",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
