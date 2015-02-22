@@ -7,7 +7,23 @@
     "longName": "PebbleNotification",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/border3.png",
+                "name": "BORDER_THREE",
+                "type": "png"
+            },
+            {
+                "file": "images/border2.png",
+                "name": "BORDER_TWO",
+                "type": "png"
+            },
+            {
+                "file": "images/border.png",
+                "name": "BORDER",
+                "type": "png"
+            }
+        ]
     },
     "shortName": "PebbleNotification",
     "uuid": "3dae475a-3873-4a8a-a3f8-c27571a422ea",

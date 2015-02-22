@@ -5,6 +5,9 @@
 
 static Window *window;
 static TextLayer *notification_layer;
+BitmapLayer *bitmap_layer;
+static GBitmap *gbitmap;
+static Layer *window_layer;
 
 
 
@@ -23,7 +26,11 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     switch (t->key) {
       case KEY_ONE_DATA:
         snprintf(buffer, sizeof(buffer), "%s", t->value->cstring);
+        gbitmap = gbitmap_create_with_resource(RESOURCE_ID_BORDER_TWO);
+        bitmap_layer_set_bitmap(bitmap_layer, gbitmap);
         text_layer_set_text(notification_layer, buffer);
+        layer_add_child(window_layer, bitmap_layer_get_layer(bitmap_layer));
+        layer_add_child(window_layer, text_layer_get_layer(notification_layer));
         vibes_enqueue_custom_pattern(pat);
     }
     t = dict_read_next(iterator);
@@ -53,19 +60,28 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 }
 
 static void window_load(Window *window) {
-  Layer *window_layer = window_get_root_layer(window);
   
-  notification_layer = text_layer_create(GRect(0, 55, 144, 50));
+  
+  window_layer = window_get_root_layer(window);
+  gbitmap = gbitmap_create_with_resource(RESOURCE_ID_BORDER);
+  bitmap_layer = bitmap_layer_create(GRect(0, 0, 144, 168));
+  bitmap_layer_set_bitmap(bitmap_layer, gbitmap);
+  
+  notification_layer = text_layer_create(GRect(0, 30, 144, 168));
   text_layer_set_background_color(notification_layer, GColorClear);
   text_layer_set_text_color(notification_layer, GColorBlack);
-  text_layer_set_font(notification_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24));
-  text_layer_set_text(notification_layer, "Not quite yet...");
+  text_layer_set_font(notification_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
+  text_layer_set_text(notification_layer, "Welcome to Wake Me Up!");
+  text_layer_set_text_alignment(notification_layer, GTextAlignmentCenter);
   text_layer_set_overflow_mode(notification_layer, GTextOverflowModeWordWrap);
+  layer_add_child(window_layer, bitmap_layer_get_layer(bitmap_layer));
   layer_add_child(window_layer, text_layer_get_layer(notification_layer));
 }
 
 static void window_unload(Window *window) {
   text_layer_destroy(notification_layer);
+  gbitmap_destroy(gbitmap);
+  bitmap_layer_destroy(bitmap_layer);
 }
 
 static void select_single_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -73,6 +89,12 @@ static void select_single_click_handler(ClickRecognizerRef recognizer, void *con
   send_next_data();
   char* buffer = "You have woken up! Hooray!";
   text_layer_set_text(notification_layer, buffer);
+  
+  gbitmap = gbitmap_create_with_resource(RESOURCE_ID_BORDER_THREE);
+  bitmap_layer_set_bitmap(bitmap_layer, gbitmap);
+  text_layer_set_text(notification_layer, buffer);
+  layer_add_child(window_layer, bitmap_layer_get_layer(bitmap_layer));
+  layer_add_child(window_layer, text_layer_get_layer(notification_layer));
 }
 
 static void click_config_provider(void *context) {
@@ -93,6 +115,8 @@ static void init() {
     .load = window_load,
     .unload = window_unload
   });
+  
+  window_set_fullscreen(window, true);
   
   window_set_click_config_provider(window, click_config_provider);
   window_stack_push(window, true);
