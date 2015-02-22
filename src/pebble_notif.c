@@ -1,22 +1,30 @@
 #include <pebble.h>
   
-#define KEY_DATA 1
+#define KEY_ONE_DATA 1
+#define KEY_TWO_DATA 2
 
 static Window *window;
 static TextLayer *notification_layer;
 
+
+
+
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *t = dict_read_first(iterator);
+  
+  static const uint32_t segments[] = {800, 500, 800, 500, 800};
+  VibePattern pat = {
+      .durations = segments,
+      .num_segments = ARRAY_LENGTH(segments),
+  };
+  
   while (t != NULL) {
     static char buffer[64];
     switch (t->key) {
-      case KEY_DATA:
+      case KEY_ONE_DATA:
         snprintf(buffer, sizeof(buffer), "%s", t->value->cstring);
         text_layer_set_text(notification_layer, buffer);
-        while (true) {
-          vibes_double_pulse(); 
-        }
-        break;
+        vibes_enqueue_custom_pattern(pat);
     }
     t = dict_read_next(iterator);
   }
@@ -27,11 +35,21 @@ static void inbox_dropped_callback(AppMessageResult reason, void *context) {
 }
 
 static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
+  APP_LOG(APP_LOG_LEVEL_ERROR, "You missed your stop. Boo.");
+}
+
+static void send_next_data() {  
+  DictionaryIterator *iterator;
+  app_message_outbox_begin(&iterator);
+
+  Tuplet t = TupletCString(2, "complete");
+  dict_write_tuplet(iterator, &t);
+  
+  app_message_outbox_send();
 }
 
 static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+  APP_LOG(APP_LOG_LEVEL_INFO, "You have woken up! Hooray!");
 }
 
 static void window_load(Window *window) {
@@ -48,6 +66,17 @@ static void window_load(Window *window) {
 
 static void window_unload(Window *window) {
   text_layer_destroy(notification_layer);
+}
+
+static void select_single_click_handler(ClickRecognizerRef recognizer, void *context) {
+  vibes_cancel();
+  send_next_data();
+  char* buffer = "You have woken up! Hooray!";
+  text_layer_set_text(notification_layer, buffer);
+}
+
+static void click_config_provider(void *context) {
+  window_single_click_subscribe(BUTTON_ID_SELECT, select_single_click_handler);
 }
 
 static void init() {
