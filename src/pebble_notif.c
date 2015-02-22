@@ -9,9 +9,6 @@ BitmapLayer *bitmap_layer;
 static GBitmap *gbitmap;
 static Layer *window_layer;
 
-
-
-
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *t = dict_read_first(iterator);
   
