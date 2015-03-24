@@ -9,6 +9,37 @@ BitmapLayer *bitmap_layer;
 static GBitmap *gbitmap;
 static Layer *window_layer;
 
+/* Sends data to phone to signify that the user has "woken up" */
+static void send_next_data() {  
+  DictionaryIterator *iterator;
+  app_message_outbox_begin(&iterator);
+
+  Tuplet t = TupletCString(2, "complete");
+  dict_write_tuplet(iterator, &t);
+  
+  app_message_outbox_send();
+}
+
+/* Sets up window after the user has "woken up" */
+static void select_single_click_handler(ClickRecognizerRef recognizer, void *context) {
+  vibes_cancel();
+  send_next_data();
+  char* buffer = "You have woken up! Hooray!";
+  text_layer_set_text(notification_layer, buffer);
+  
+  gbitmap = gbitmap_create_with_resource(RESOURCE_ID_BORDER_THREE);
+  bitmap_layer_set_bitmap(bitmap_layer, gbitmap);
+  text_layer_set_text(notification_layer, buffer);
+  layer_add_child(window_layer, bitmap_layer_get_layer(bitmap_layer));
+  layer_add_child(window_layer, text_layer_get_layer(notification_layer));
+}
+
+/* Sets up the click handler */
+static void click_config_provider(void *context) {
+  window_single_click_subscribe(BUTTON_ID_SELECT, select_single_click_handler);
+}
+
+/* Starts buzzing and initializes the click handler */
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   Tuple *t = dict_read_first(iterator);
   
@@ -17,7 +48,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       .durations = segments,
       .num_segments = ARRAY_LENGTH(segments),
   };
-  
   while (t != NULL) {
     static char buffer[64];
     switch (t->key) {
@@ -29,33 +59,28 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         layer_add_child(window_layer, bitmap_layer_get_layer(bitmap_layer));
         layer_add_child(window_layer, text_layer_get_layer(notification_layer));
         vibes_enqueue_custom_pattern(pat);
+        window_set_click_config_provider(window, click_config_provider);
     }
     t = dict_read_next(iterator);
   }
 }
 
+/* Handles dropped callback */
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
 }
 
+/* Handles failed callback */
 static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
   APP_LOG(APP_LOG_LEVEL_ERROR, "You missed your stop. Boo.");
 }
 
-static void send_next_data() {  
-  DictionaryIterator *iterator;
-  app_message_outbox_begin(&iterator);
-
-  Tuplet t = TupletCString(2, "complete");
-  dict_write_tuplet(iterator, &t);
-  
-  app_message_outbox_send();
-}
-
+/* Handles successful sent message */
 static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "You have woken up! Hooray!");
 }
 
+/* Loads the inital window */
 static void window_load(Window *window) {
   
   
@@ -75,29 +100,14 @@ static void window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(notification_layer));
 }
 
+/* Destroys the window */
 static void window_unload(Window *window) {
   text_layer_destroy(notification_layer);
   gbitmap_destroy(gbitmap);
   bitmap_layer_destroy(bitmap_layer);
 }
 
-static void select_single_click_handler(ClickRecognizerRef recognizer, void *context) {
-  vibes_cancel();
-  send_next_data();
-  char* buffer = "You have woken up! Hooray!";
-  text_layer_set_text(notification_layer, buffer);
-  
-  gbitmap = gbitmap_create_with_resource(RESOURCE_ID_BORDER_THREE);
-  bitmap_layer_set_bitmap(bitmap_layer, gbitmap);
-  text_layer_set_text(notification_layer, buffer);
-  layer_add_child(window_layer, bitmap_layer_get_layer(bitmap_layer));
-  layer_add_child(window_layer, text_layer_get_layer(notification_layer));
-}
-
-static void click_config_provider(void *context) {
-  window_single_click_subscribe(BUTTON_ID_SELECT, select_single_click_handler);
-}
-
+/* Initializes Pebble */
 static void init() {
   app_message_register_inbox_received(inbox_received_callback);
   app_message_register_inbox_dropped(inbox_dropped_callback);
@@ -114,11 +124,10 @@ static void init() {
   });
   
   window_set_fullscreen(window, true);
-  
-  window_set_click_config_provider(window, click_config_provider);
   window_stack_push(window, true);
 }
 
+/* Distroys the window */
 static void deinit() {
   window_destroy(window);
 }

@@ -9,8 +9,8 @@
     "resources": {
         "media": [
             {
-                "file": "images/border3.png",
-                "name": "BORDER_THREE",
+                "file": "images/border.png",
+                "name": "BORDER",
                 "type": "png"
             },
             {
@@ -19,12 +19,13 @@
                 "type": "png"
             },
             {
-                "file": "images/border.png",
-                "name": "BORDER",
+                "file": "images/border3.png",
+                "name": "BORDER_THREE",
                 "type": "png"
             }
         ]
     },
+    "sdkVersion": "2",
     "shortName": "Wake Me Up",
     "uuid": "3dae475a-3873-4a8a-a3f8-c27571a422ea",
     "versionCode": 1,
