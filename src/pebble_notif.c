@@ -122,8 +122,10 @@ static void init() {
     .load = window_load,
     .unload = window_unload
   });
-  
+
+#ifdef PBL_PLATFORM_APLITE
   window_set_fullscreen(window, true);
+#endif
   window_stack_push(window, true);
 }
 
@@ -131,6 +133,7 @@ static void init() {
 static void deinit() {
   window_destroy(window);
 }
+
 
 int main(void) {
   init();
