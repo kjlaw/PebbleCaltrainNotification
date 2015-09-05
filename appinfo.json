@@ -1,36 +1,40 @@
 {
-    "appKeys": {},
-    "capabilities": [
-        ""
-    ],
-    "companyName": "kristenlaw21@gmail.com",
-    "longName": "Wake Me Up",
-    "projectType": "native",
-    "resources": {
-        "media": [
-            {
-                "file": "images/border.png",
-                "name": "BORDER",
-                "type": "png"
-            },
-            {
-                "file": "images/border2.png",
-                "name": "BORDER_TWO",
-                "type": "png"
-            },
-            {
-                "file": "images/border3.png",
-                "name": "BORDER_THREE",
-                "type": "png"
-            }
-        ]
-    },
-    "sdkVersion": "2",
-    "shortName": "Wake Me Up",
-    "uuid": "3dae475a-3873-4a8a-a3f8-c27571a422ea",
-    "versionCode": 1,
-    "versionLabel": "1.0",
-    "watchapp": {
-        "watchface": false
-    }
+  "appKeys": {},
+  "capabilities": [
+    ""
+  ],
+  "companyName": "kristenlaw21@gmail.com",
+  "longName": "Wake Me Up",
+  "projectType": "native",
+  "resources": {
+    "media": [
+      {
+        "file": "images/border.png",
+        "name": "BORDER",
+        "type": "png"
+      },
+      {
+        "file": "images/border2.png",
+        "name": "BORDER_TWO",
+        "type": "png"
+      },
+      {
+        "file": "images/border3.png",
+        "name": "BORDER_THREE",
+        "type": "png"
+      }
+    ]
+  },
+  "sdkVersion": "3",
+  "shortName": "Wake Me Up",
+  "uuid": "3dae475a-3873-4a8a-a3f8-c27571a422ea",
+  "versionCode": 1,
+  "versionLabel": "1.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "targetPlatforms": [
+    "aplite",
+    "basalt"
+  ]
 }
